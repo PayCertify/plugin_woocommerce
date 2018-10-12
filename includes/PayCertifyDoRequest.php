@@ -28,8 +28,9 @@ abstract class PayCertifyDoRequest {
      *
      * @param string $api_token       
      */
-    public function __construct($api_token) {
-        $this->_api_token = ($api_token ? $api_token : (defined('API_TOKEN') ? API_TOKEN : ""));
+    public function __construct($payCertify) {
+        $this->payCertify = $payCertify;
+        $this->_api_token = $this->payCertify->getSetting('api_token');
     }
 
 

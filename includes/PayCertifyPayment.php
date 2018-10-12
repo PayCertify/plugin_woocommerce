@@ -112,6 +112,11 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'type' => 'text',
                 'desc_tip' => __('PayCertify API Token.', $this->id),
             ),
+            'processor_id' => array(
+                'title' => __('Processor ID', $this->id),
+                'type' => 'text',
+                'desc_tip' => __('The ID of the Processor.', $this->id),
+            ),
             'avs_enabled' => array(
                 'title' => __('Enable AVS', $this->id),
                 'label' => __('Enable AVS', $this->id),
@@ -130,6 +135,12 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'title' => __('Dynamic Descriptor', $this->id),
                 'type' => 'text',
                 'desc_tip' => __('The credit card statement descriptor.', $this->id),
+            ),
+            'test_mode_enabled' => array(
+                'title' => __('Enable Test Mode', $this->id),
+                'label' => __('Enable Test Mode', $this->id),
+                'type' => 'checkbox',
+                'default' => 'yes',
             ),
         );
 
@@ -184,8 +195,12 @@ class WC_PayCertify extends WC_Payment_Gateway {
             $payload['dynamic_descriptor'] = $this->getSetting('dynamic_descriptor');
         }
 
+        if (!empty($this->getSetting('processor_id'))) {
+            $payload['processor_id'] = $this->getSetting('processor_id');
+        }
 
-        $sale = new PayCertifyDoSale;
+
+        $sale = new PayCertifyDoSale($this);
         $sale->setFields($payload);
         $response = $sale->capturePayment();
 
@@ -222,7 +237,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
         $wc_order = new WC_Order($order_id);
         $txn_id = get_post_meta($order_id, '_transaction_id', true);
         $payload = array('amount' => $amount);
-        $refund = new PayCertifyDoSale;
+        $refund = new PayCertifyDoSale($this);
         $refund->setFields($payload);
 
         if ($amount < 0 || $amount == 0) {

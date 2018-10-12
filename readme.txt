@@ -18,3 +18,8 @@ Accept Visa, MasterCard, American Express, Discover, JCB, Diners Club and more d
 
 = 1.0.0 - 2018-04-24 =
 * Created first stable version of the PayCertify WooCommerce Plugin.
+
+= 1.0.1 - 2018-10-12 =
+* Added option to add `processor_id`
+* Added test mode feature
+* Fixed 500 error occurring sometimes

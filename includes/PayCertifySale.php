@@ -3,6 +3,7 @@
 class PayCertifyDoSale extends PayCertifyDoRequest {
 
     const POST_URL = "https://gateway-api.paycertify.com/api/";
+    const TEST_URL = "https://qa-gateway-api.paycertify.com/api/";
 
     private $_post_fields = array();
 
@@ -33,7 +34,11 @@ class PayCertifyDoSale extends PayCertifyDoRequest {
     }
 
     public function _setPostUrl($url) {
-        $this->_post_url = self::POST_URL . $url;
+        if ($this->payCertify->getSetting('test_mode_enabled') == 'yes') {
+            $this->_post_url = self::TEST_URL . $url;
+        } else {
+            $this->_post_url = self::POST_URL . $url;
+        }
     }
 
     public function setFields($fields) {
