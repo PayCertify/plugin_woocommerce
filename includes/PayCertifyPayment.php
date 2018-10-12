@@ -13,6 +13,8 @@ class WC_PayCertify extends WC_Payment_Gateway {
         'avs_enabled',
         'partial_refund',
         'dynamic_descriptor',
+        'processor_id',
+        'test_mode_enabled',
     );
     public $form_fields = array();
 
