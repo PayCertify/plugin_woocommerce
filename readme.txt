@@ -3,7 +3,7 @@ Contributors: PayCertify Developers
 Tags: PayCertify Payment Gateway, PayCertify, PayCertify woocommerce plugin, 3ds, 3d secure, visa, mastercard, amex
 Requires at least: 4.7.5
 Tested up to: 4.9.5
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 
 == Description ==
@@ -19,7 +19,7 @@ Accept Visa, MasterCard, American Express, Discover, JCB, Diners Club and more d
 = 1.0.0 - 2018-04-24 =
 * Created first stable version of the PayCertify WooCommerce Plugin.
 
-= 1.0.1 - 2018-10-12 =
+= 1.1.0 - 2018-10-12 =
 * Added option to add `processor_id`
 * Added test mode feature
 * Fixed 500 error occurring sometimes
