@@ -1,83 +1,28 @@
 <?php
 
-class PayCertifyDoSale extends PayCertifyDoRequest {
+public function PayCertifyJs($key, $mode){
 
-    const POST_URL = "https://gateway-api.paycertify.com/api/";
-    const TEST_URL = "https://qa-gateway-api.paycertify.com/api/";
+    wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key=064BDCCB1F7A8835A468081753A633CA0B679FC8&mode=test', array('jquery'), '0.1', true );
 
-    private $_post_fields = array();
 
-    public function _wc_logger($msg) {
-        $log = new WC_Logger();
-        $log->add('response', $msg);
+    function kia_filter_checkout_fields($fields){
+        $fields['billing_first_name'] = array(
+                'some_field' => array(
+                    'type' => 'text',
+                    'required'      => true,
+                    'label' => __( 'Some field' )
+                    ),
+                'another_field' => array(
+                    'type' => 'select',
+                    'options' => array( 'a' => __( 'apple' ), 'b' => __( 'bacon' ), 'c' => __( 'chocolate' ) ),
+                    'required'      => true,
+                    'label' => __( 'Another field' )
+                    )
+                );
+     
+        return $fields;
     }
-
-    protected function _getPostUrl() {
-        //return self::SALE_URL;
-        return $this->_post_url;
-    }
-
-    public function capturePayment() {
-        $url = "transactions/sale";
-        $this->_setPostUrl($url);
-        return $this->_sendRequest();
-    }
-
-    public function doRefund($txn_id) {
-        $url = "transactions/".$txn_id . "/refund";
-        $this->_setPostUrl($url);
-        return $this->_sendRequest();
-    }
-
-    public function chargeLater() {
-        // To be implemented
-    }
-
-    public function _setPostUrl($url) {
-        if ($this->payCertify->getSetting('test_mode_enabled') == 'yes') {
-            $this->_post_url = self::TEST_URL . $url;
-        } else {
-            $this->_post_url = self::POST_URL . $url;
-        }
-    }
-
-    public function setFields($fields) {
-        $array = (array) $fields;
-        foreach ($array as $key => $value) {
-            $this->setField($key, $value);
-        }
-    }
-
-    public function setField($name, $value) {
-        $this->_post_fields[$name] = $value;
-    }
-
-    protected function _setPostString() {
-
-        $this->_post_string = "";
-        $this->_post_string = http_build_query($this->_post_fields) . "\n";
-    }
-
-    protected function _handleResponse($json_response) {
-
-        $result = array();
-
-        if ($json_response) {
-            $response = json_decode($json_response);
-            
-            if ($response->error) {
-				$this->_wc_logger(print_r($response, true));
-                $errors = $response->error->message->base;
-                $result['error'] = $errors;
-            }
-            if ($response->transaction->events[0]) {
-                $result['event'] = $response->transaction->events[0];
-                $result['txn_id'] = $response->transaction->id;
-            }
-
-            return $result;
-        }
-    }
+add_filter( 'woocommerce_checkout_fields', 'kia_filter_checkout_fields' );
 
 }
 

@@ -2,8 +2,8 @@
 
 class WC_PayCertify extends WC_Payment_Gateway {
 
-    const WC_ORDER_ID = 'woocommerce_order_id';
-    const API_TOKEN = '';
+	// const WC_ORDER_ID = 'woocommerce_order_id';
+ //    const API_TOKEN = '';
 
     protected $visibleSettings = array(
         'enabled',
@@ -76,8 +76,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
         $this->init_settings();
 
-        define("API_TOKEN", $this->get_token());
-
         add_action('admin_notices', array($this, 'do_ssl_check'));
 
         // Save settings
@@ -86,6 +84,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
         }
     }
+
 
     public function init_form_fields() {
 
@@ -153,174 +152,8 @@ class WC_PayCertify extends WC_Payment_Gateway {
         }
     }
 
-    public function process_payment($order_id) {
-		
-        global $woocommerce;
-        $wc_order = new WC_Order($order_id);
-        $exp_date = explode("/", sanitize_text_field($_POST['paycertify-card-expiry']));
-        $exp_month = str_replace(' ', '', $exp_date[0]);
-        $exp_year = str_replace(' ', '', $exp_date[1]);
 
-        if (strlen($exp_year) == 2) {
-            $exp_year += 2000;
-        }
-
-        $payload = array(
-            'amount' => $wc_order->order_total,
-            'card_number' => str_replace(array(' ', '-'), '', sanitize_text_field($_POST['paycertify-card-number'])),
-            'card_expiry_month' => $exp_month,
-            'card_expiry_year' => $exp_year,
-            'card_cvv' => sanitize_text_field($_POST['paycertify-card-cvc']),
-            'merchant_transaction_id' => $order_id,
-            'first_name' => $wc_order->billing_first_name,
-            'last_name' => $wc_order->billing_last_name,
-            'email' => $wc_order->billing_email,
-            'street_address_1' => $wc_order->billing_address_1,
-            'street_address_2' => $wc_order->billing_address_2,
-            'city' => $wc_order->billing_city,
-            'state' => $wc_order->billing_state,
-            'country' => $wc_order->billing_country,
-            'zip' => $wc_order->billing_postcode,
-            'shipping_street_address_1' => $wc_order->shipping_address_1,
-            'shipping_street_address_2' => $wc_order->shipping_address_2,
-            'shipping_city' => $wc_order->shipping_city,
-            'shipping_state' => $wc_order->shipping_state,
-            'shipping_country' => $wc_order->shipping_country,
-            'shipping_zip' => $wc_order->shipping_postcode,
-        );
-
-        if ($this->getSetting('avs_enabled') == 'yes') {
-            $payload['avs_enabled'] = true;
-        }
-
-        if (!empty($this->getSetting('dynamic_descriptor'))) {
-            $payload['dynamic_descriptor'] = $this->getSetting('dynamic_descriptor');
-        }
-
-        if (!empty($this->getSetting('processor_id'))) {
-            $payload['processor_id'] = $this->getSetting('processor_id');
-        }
-
-
-        $sale = new PayCertifyDoSale($this);
-        $sale->setFields($payload);
-        $response = $sale->capturePayment();
-
-        if ($response) {
-            if (isset($response['error'])) {
-                wc_add_notice("Error in PayCertify Integration. Please contact merchant !", $notice_type = 'error');
-            } else {
-
-                $event = $response['event'];
-
-                if ($event->success) {
-
-                    $wc_order->add_order_note('Payment completed on ' . date("d-M-Y h:i:s e"), 'woocommerce');
-                    $wc_order->payment_complete($response['txn_id']);
-                    $woocommerce->cart->empty_cart();
-
-                    return array(
-                        'result' => 'success',
-                        'redirect' => $this->get_return_url($wc_order),
-                    );
-                    // WC()->cart->empty_cart();
-                } else {
-                    wc_add_notice("We weren't able to process this card. Please contact your bank for more information.", $notice_type = 'error');
-                    $wc_order->add_order_note('Payment failed', 'woocommerce');
-                }
-            }
-        }
-    }
-
-    public function process_refund($order_id, $amount = NULL, $reason = '') {
-
-        global $woocommerce;
-
-        $wc_order = new WC_Order($order_id);
-        $txn_id = get_post_meta($order_id, '_transaction_id', true);
-        $payload = array('amount' => $amount);
-        $refund = new PayCertifyDoSale($this);
-        $refund->setFields($payload);
-
-        if ($amount < 0 || $amount == 0) {
-            return new WP_Error('error', __('Refund amount should be greater than 0 !', 'woocommerce'));
-        }
-
-        if ($amount < $wc_order->order_total) {
-			
-            if (!isset($this->settings['partial_refund']) || $this->getSetting('partial_refund') == 'no') {
-                return new WP_Error('error', __('Partial Refund is not allowed. To allow go to Paycertify settings !', 'woocommerce'));
-            }
-        }
-
-        if (!empty($txn_id)) {
-            $response = $refund->doRefund($txn_id);
-
-            if ($response) {
-                if (isset($response['error'])) {
-                    $wc_order->add_order_note('Unable to refund via Paycertify.', 'woocommerce');
-                    return false;
-                } else {
-                    $event = $response['event'];
-
-                    if ($event->success) {
-
-                        if ($wc_order->order_total == $amount) {
-                            $wc_order->update_status('wc-refunded');
-                            $wc_order->add_order_note('Full refund has been made! ', 'woocommerce');
-                        } else {
-                            $wc_order->add_order_note('Partial refund has been made! ', 'woocommerce');
-                        }
-                        return true;
-                    } else {
-                        return new WP_Error('error', __('Refund failed: Please try another amount !', 'woocommerce'));
-                    }
-                }
-            }
-        } else {
-
-            return new WP_Error('error', __('Refund failed: No transaction ID found !', 'woocommerce'));
-        }
-    }
-
-    public function admin_options() {
-        echo '<h3>' . __('PayCertify Payment Gateway', $this->id) . '</h3>';
-        echo '<p>' . __('Allows payments by Credit/Debit Cards.') . '</p>';
-        echo '<table class="form-table">';
-
-        // Generate the HTML For the settings form.
-        $this->generate_settings_html();
-        echo '</table>';
-    }
-
-    public function get_description() {
-        return $this->getSetting('description');
-    }
-
-    public function get_title() {
-        return $this->getSetting('title');
-    }
-
-    public function get_token() {
-        return $this->getSetting('api_token');
-    }
-
-    protected function getOrderId($order) {
-        if (version_compare(WOOCOMMERCE_VERSION, '2.7.0', '>=')) {
-            return $order->get_id();
-        }
-
-        return $order->id;
-    }
-
-    public function do_ssl_check() {
-        if ($this->enabled == "yes") {
-            if (get_option('woocommerce_force_ssl_checkout') == "no") {
-                echo "<div class=\"error\"><p>" . sprintf(__("<strong>%s</strong> is enabled and WooCommerce is not forcing the SSL certificate on your checkout page. Please ensure that you have a valid SSL certificate and that you are <a href=\"%s\">forcing the checkout pages to be secured.</a>"), $this->method_title, admin_url('admin.php?page=wc-settings&tab=checkout')) . "</p></div>";
-            }
-        }
-    }
-
+    //VALIDATE FIELDS CARD
     public function validate_fields() {
         global $woocommerce;
 
@@ -362,7 +195,5 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
         return is_numeric($ccv_number) AND $length > 2 AND $length < 5;
     }
-
+   
 }
-
-?>
