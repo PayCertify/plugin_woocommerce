@@ -22,8 +22,8 @@ function my_custom_checkout_hidden_field( $wc_order ) {
 
     // Output the hidden link
     echo '<div id="PayCertifyChekout">
-            <input type="hidden" type="hidden" data-paycertify="processor_id"/> 
-            <input type="hidden" type="hidden" data-paycertify="amount" value="1"/>
+            <input type="hidden" data-paycertify="processor_id"/> 
+            <input type="hidden" data-paycertify="amount" value="1"/>
             <input type="hidden" type="text" data-paycertify="first-name"/>
             <input type="hidden" type="text" data-paycertify="last-name"/>
             <input type="hidden" type="text" data-paycertify="email"/>
