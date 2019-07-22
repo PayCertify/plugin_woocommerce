@@ -7,17 +7,16 @@ function PayCertifyJs( ) {
     $obj = new WC_PayCertify;
     $api_token = $obj->settings['api_token'];
 
-    wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key='.$api_token.'&mode=test', array('jquery'), '0.1', true );
+    if( is_checkout() ){
+        wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key='.$api_token.'&mode=test', array('jquery'), '0.1', true );
+    }
 
 }
 add_action( 'wp_enqueue_scripts', 'PayCertifyJs' );
 
 
-
-add_action( 'woocommerce_after_order_notes', 'my_custom_checkout_hidden_field', 10, 1 );
 function my_custom_checkout_hidden_field( $wc_order ) {
     
-
     var_dump($wc_order);
 
     // Output the hidden link
@@ -40,6 +39,7 @@ function my_custom_checkout_hidden_field( $wc_order ) {
             <input type="hidden" type="text" data-paycertify="card-cvv"/>
     </div>';
 }
+add_action( 'woocommerce_after_order_notes', 'my_custom_checkout_hidden_field', 10, 1 );
 
 
 ?>
