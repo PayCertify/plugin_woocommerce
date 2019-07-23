@@ -159,18 +159,12 @@ class WC_PayCertify extends WC_Payment_Gateway {
         global $woocommerce;
         
         $wc_order = new WC_Order($order_id);
-        $exp_date = explode("/", sanitize_text_field($_POST['paycertify-card-expiry']));
-        $exp_month = str_replace(' ', '', $exp_date[0]);
-        $exp_year = str_replace(' ', '', $exp_date[1]);
-
-        if (strlen($exp_year) == 2) {
-            $exp_year += 2000;
-        }
 
         $api_token = $this->settings['api_token'];
         $processor_id = $this->settings['processor_id'];
+        $amount = $wc_order->order_total;
 
-        my_custom_checkout_hidden_field( $wc_order );
+        var_dump(my_custom_checkout_hidden_field( $wc_order, $amount ));
 
     }
 
