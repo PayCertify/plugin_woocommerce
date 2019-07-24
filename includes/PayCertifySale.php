@@ -6,27 +6,18 @@ function PayCertifyJs( ) {
     //CLASS WC_PayCertify token admin
     $obj = new WC_PayCertify;
     $api_token = $obj->settings['api_token'];
-    $mode = $obj->settings['test_mode_enabled'];
-
-    if( $mode == 'yes' ){
-        $mode_return = '&mode=test';
-    }
 
     if( is_checkout() && $api_token ){
-        wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key='.$api_token.''.$mode_return.'', array('jquery'), '0.1', true );
+        wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key='.$api_token.'', array('jquery'), '0.1', true );
     }
-
 }
 add_action( 'wp_enqueue_scripts', 'PayCertifyJs' );
 
 
-function my_custom_checkout_hidden_field( $wc_order ) {
+function my_custom_checkout_hidden_field( $order_id ) {
 
     global $woocommerce;
-
-    // echo '<pre>';
-    // var_dump();
-    // echo '</pre>';
+    $obj = new WC_PayCertify;
     
     $exp_date = explode("/", sanitize_text_field($_POST['paycertify-card-expiry']));
     $exp_month = str_replace(' ', '', $exp_date[0]);
@@ -46,11 +37,21 @@ function my_custom_checkout_hidden_field( $wc_order ) {
     $billing_state = $woocommerce->customer->billing['state'];
     $billing_email = $woocommerce->customer->billing['email'];
     $billing_phone = $woocommerce->customer->billing['phone'];
+    $cart_amount = $woocommerce->cart->total;
+    $processor_id = $obj->settings['processor_id'];
+
+    // echo '<pre>';
+    // var_dump( $exp_year );
+    // echo '</pre>';
+
+
+     //wc_add_notice("Error in PayCertify Integration. Please contact merchant !", $notice_type = 'error');
+
 
     // Output the hidden link
     echo '<div id="PayCertifyChekout">
-            <input type="hidden" data-paycertify="processor_id" value="aacd4fd7-a118-41a9-be10-1c8aa1d99bfd"/> 
-            <input type="hidden" data-paycertify="amount" value="100"/>
+            <input type="hidden" data-paycertify="processor_id" value="'.$processor_id.'"/> 
+            <input type="hidden" data-paycertify="amount" value="'.$cart_amount.'"/>
             <input type="hidden" type="text" data-paycertify="first-name" value="'.$billing_first_name.'"/>
             <input type="hidden" type="text" data-paycertify="last-name" value="'.$billing_last_name.'"/>
             <input type="hidden" type="text" data-paycertify="email" value="'.$billing_email.'"/>
@@ -68,6 +69,3 @@ function my_custom_checkout_hidden_field( $wc_order ) {
     </div>';
 }
 add_action( 'woocommerce_after_order_notes', 'my_custom_checkout_hidden_field', 10, 1 );
-
-
-?>

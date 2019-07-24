@@ -2,9 +2,6 @@
 
 class WC_PayCertify extends WC_Payment_Gateway {
 
-	// const WC_ORDER_ID = 'woocommerce_order_id';
- //    const API_TOKEN = '';
-
     protected $visibleSettings = array(
         'enabled',
         'title',
@@ -131,17 +128,17 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'desc_tip' => __('Check this box to allow Partial Refunds.', $this->id),
                 'default' => 'no',
             ),
-            'dynamic_descriptor' => array(
-                'title' => __('Dynamic Descriptor', $this->id),
-                'type' => 'text',
-                'desc_tip' => __('The credit card statement descriptor.', $this->id),
-            ),
-            'test_mode_enabled' => array(
-                'title' => __('Enable Test Mode', $this->id),
-                'label' => __('Enable Test Mode', $this->id),
-                'type' => 'checkbox',
-                'default' => 'yes',
-            ),
+            // 'dynamic_descriptor' => array(
+            //     'title' => __('Dynamic Descriptor', $this->id),
+            //     'type' => 'text',
+            //     'desc_tip' => __('The credit card statement descriptor.', $this->id),
+            // ),
+            // 'test_mode_enabled' => array(
+            //     'title' => __('Enable Test Mode', $this->id),
+            //     'label' => __('Enable Test Mode', $this->id),
+            //     'type' => 'checkbox',
+            //     'default' => 'yes',
+            // ),
         );
 
         foreach ($formfields as $key => $value) {
@@ -149,22 +146,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 $this->form_fields[$key] = $value;
             }
         }
-    }
-
-
-
-    //PROCESSOR PAYMENT
-    public function process_payment( $order_id ){
-
-        global $woocommerce;
-        
-        $wc_order = new WC_Order($order_id);
-
-        $api_token = $this->settings['api_token'];
-        $processor_id = $this->settings['processor_id'];
-
-        my_custom_checkout_hidden_field( $wc_order );
-
     }
 
 
@@ -206,7 +187,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
             }
         }
     }
-
 
     //VALIDATE FIELDS CARD
     public function validate_fields() {
