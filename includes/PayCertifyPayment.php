@@ -2,8 +2,8 @@
 
 class WC_PayCertify extends WC_Payment_Gateway {
 
-	const WC_ORDER_ID = 'woocommerce_order_id';
-    const API_TOKEN = '';
+	// const WC_ORDER_ID = 'woocommerce_order_id';
+ //    const API_TOKEN = '';
 
     protected $visibleSettings = array(
         'enabled',
@@ -42,7 +42,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
      * @return mixed setting value
      */
     public function getSetting($key) {
-        return $this->settings[$key];
+        return $this->method_title;
     }
 
     /**
@@ -84,7 +84,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
         }
     }
-
 
     public function init_form_fields() {
 
@@ -148,6 +147,62 @@ class WC_PayCertify extends WC_Payment_Gateway {
         foreach ($formfields as $key => $value) {
             if (in_array($key, $this->visibleSettings, true)) {
                 $this->form_fields[$key] = $value;
+            }
+        }
+    }
+
+
+
+    //PROCESSOR PAYMENT
+    public function process_payment( $order_id ){
+
+        global $woocommerce;
+        
+        $wc_order = new WC_Order($order_id);
+
+        $api_token = $this->settings['api_token'];
+        $processor_id = $this->settings['processor_id'];
+
+        my_custom_checkout_hidden_field( $wc_order );
+
+    }
+
+
+    public function admin_options() {
+        echo '<h3>' . __('PayCertify Payment Gateway', $this->id) . '</h3>';
+        echo '<p>' . __('Allows payments by Credit/Debit Cards.') . '</p>';
+        echo '<table class="form-table">';
+
+        // Generate the HTML For the settings form.
+        $this->generate_settings_html();
+        echo '</table>';
+    }
+
+    public function get_description() {
+        return $this->getSetting('description');
+    }
+
+    public function get_title() {
+        return $this->getSetting('title');
+    }
+
+    public function get_token() {
+        return $this->getSetting('api_token');
+    }
+
+    protected function getOrderId($order) {
+        if (version_compare(WOOCOMMERCE_VERSION, '2.7.0', '>=')) {
+            return $order->get_id();
+        }
+
+        return $order->id;
+    }
+
+    //METHOD SSL CHECK
+    public function do_ssl_check() {
+        if ($this->enabled == "yes") {
+            if (get_option('woocommerce_force_ssl_checkout') == "no") {
+                echo "<div class=\"error\"><p>" . sprintf(__("<strong>%s</strong> is enabled and WooCommerce is not forcing the SSL certificate on your checkout page. Please ensure that you have a valid SSL certificate and that you are <a href=\"%s\">forcing the checkout pages to be secured.</a>"), $this->method_title, admin_url('admin.php?page=wc-settings&tab=checkout')) . "</p></div>";
             }
         }
     }
