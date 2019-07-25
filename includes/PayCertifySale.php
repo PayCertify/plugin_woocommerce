@@ -22,6 +22,18 @@ function my_custom_checkout_hidden_field( $order_id ) {
     $cart_amount = $woocommerce->cart->total;
     $processor_id = $obj->settings['processor_id'];
 
+
+    $exp_date = explode("/", sanitize_text_field($_POST['paycertify-card-expiry']));
+    $exp_month = str_replace(' ', '', $exp_date[0]);
+    $exp_year = str_replace(' ', '', $exp_date[1]);
+
+    if (strlen($exp_year) == 2) {
+        $exp_year += 2000;
+    }
+
+
+    var_dump($exp_month);
+
     // Output the hidden link
     echo '<div id="PayCertifyChekout">
             <input type="hidden" data-paycertify="processor_id" value="'.$processor_id.'"/> 
@@ -66,13 +78,63 @@ function add_field_custom_attr( $fields ) {
             'data-paycertify' => 'zip'
             );
 
-
-        //CARD
-         $fields['billing']['paycertify-card-number']['custom_attributes'] = array(
-            'data-paycertify' => 'card-number'
-            );
-
         return $fields;
 
 }
 add_filter( 'woocommerce_checkout_fields', 'add_field_custom_attr' );
+
+
+function custom_credit_card_fields_golf_cc ($cc_fields , $payment_id){
+
+    $cc_fields = array(
+     // 'card-type' => '<p class="form-row form-row-wide">
+     // <label for="' . esc_attr( $payment_id) . '-card-type">' . __( 'Credit Card Type', 'woocommerce' ) . ' <span class="required">*</span></label>
+     // <select class="wc-credit-card-form-card-type" name="' . ( $args['fields_have_names'] ? $payment_id . '-card-number' : '' ) . '" id="' . esc_attr( $payment_id ) . '-card-number">
+     // <option value="Visa">Visa</option>
+     // <option value="MasterCard">Master Card</option>
+     // <option value="Discover">Discover</option>
+     // <option value="American Express">American Express</option> 
+     // </select>
+     // </p>',
+
+    '<script>
+        jQuery("#paycertify-card-expiry").on("change paste keyup", function() {
+           alert($(this).val()); 
+        });
+    </script>',
+
+     'card-number-field' => '<p class="form-row form-row-wide">
+     <label for="' . esc_attr( $payment_id ) . '-card-number">' . __( 'Card Number', 'woocommerce' ) . ' <span class="required">*</span></label>
+     <input id="' . esc_attr( $payment_id ) . '-card-number" class="input-text wc-credit-card-form-card-number" data-paycertify="card-number" type="text" maxlength="20" autocomplete="off" placeholder="•••• •••• •••• ••••" name="' . esc_attr( $payment_id ) . '-card-number" />
+     </p>',
+     'card-expiry-field' => '<p class="form-row form-row-first">
+     <label for="' . esc_attr( $payment_id ) . '-card-expiry">' . __( 'Expiry (MM/YY)', 'woocommerce' ) . ' <span class="required">*</span></label>
+
+
+
+
+
+     <input id="' . esc_attr( $payment_id ) . '-card-expiry" class="input-text wc-credit-card-form-card-expiry" data-paycertify="card-expiry-month" type="text" autocomplete="off" placeholder="' . __( 'MM / YY', 'woocommerce' ) . '" name="' . esc_attr( $payment_id ) . '-card-expiry" />
+
+        
+     <input id="' . esc_attr( $payment_id ) . '-expiry-year" data-paycertify="card-expiry-year" type="text" />
+     
+
+
+
+
+
+
+     </p>',
+     'card-cvc-field' => '<p class="form-row form-row-last">
+     <label for="' . esc_attr( $payment_id ) . '-card-cvc">' . __( 'Card Code', 'woocommerce' ) . ' <span class="required">*</span></label>
+     <input id="' . esc_attr( $payment_id ) . '-card-cvc" class="input-text wc-credit-card-form-card-cvc" data-paycertify="card-cvv" type="text" autocomplete="off" placeholder="' . __( 'CVC', 'woocommerce' ) . '" name="' . esc_attr( $payment_id ) . '-card-cvc" />
+     </p>'
+    );
+
+
+    return $cc_fields;
+
+}
+add_filter( 'woocommerce_credit_card_form_fields' , 'custom_credit_card_fields_golf_cc' , 10, 2 );
+

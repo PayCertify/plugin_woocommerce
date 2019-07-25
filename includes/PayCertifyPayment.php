@@ -148,7 +148,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
         }
     }
 
-
     public function admin_options() {
         echo '<h3>' . __('PayCertify Payment Gateway', $this->id) . '</h3>';
         echo '<p>' . __('Allows payments by Credit/Debit Cards.') . '</p>';
