@@ -195,9 +195,13 @@ class WC_PayCertify extends WC_Payment_Gateway {
             wc_add_notice('<strong>Credit Card Number</strong> ' . __('is a required field.', 'paycertify'), 'error');
         }
 
-        if (!$this->is_empty_expire_date($_POST[esc_attr($this->id) . '-card-expiry'])) {
-            wc_add_notice('<strong>Card Expiry Date</strong> ' . __('is a required field.', 'paycertify'), 'error');
-        }
+        // if (!$this->is_empty_expire_date($_POST[esc_attr($this->id) . '-card-expiry'])) {
+        //     wc_add_notice('<strong>Card Expiry Date</strong> ' . __('is a required field.', 'paycertify'), 'error');
+        // }
+
+        // if (!$this->is_empty_expire_date($_POST[esc_attr($this->id) . '-card-year'])) {
+        //     wc_add_notice('<strong>Card Year Date</strong> ' . __('is a required field.', 'paycertify'), 'error');
+        // }
 
         if (!$this->is_empty_ccv_number($_POST[esc_attr($this->id) . '-card-cvc'])) {
             wc_add_notice('<strong>CCV Number</strong> ' . __('is a required field.', 'paycertify'), 'error');
