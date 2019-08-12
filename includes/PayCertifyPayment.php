@@ -47,6 +47,9 @@ class WC_PayCertify extends WC_Payment_Gateway {
      * setup the hooks on calling the constructor
      */
     public function __construct() {
+        
+        //Start session id order
+        session_start();
 
         // The global ID for this Payment method
         $this->id = "paycertify";
@@ -80,6 +83,11 @@ class WC_PayCertify extends WC_Payment_Gateway {
             // Save our administration options.
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
         }
+    }
+
+    public function process_payment($order_id) {
+        $_SESSION["order_id_session"] = $order_id;
+        wc_add_notice("Wait for payment confirmation...", $notice_type = 'success');
     }
 
     public function init_form_fields() {
@@ -128,17 +136,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'desc_tip' => __('Check this box to allow Partial Refunds.', $this->id),
                 'default' => 'no',
             ),
-            // 'dynamic_descriptor' => array(
-            //     'title' => __('Dynamic Descriptor', $this->id),
-            //     'type' => 'text',
-            //     'desc_tip' => __('The credit card statement descriptor.', $this->id),
-            // ),
-            // 'test_mode_enabled' => array(
-            //     'title' => __('Enable Test Mode', $this->id),
-            //     'label' => __('Enable Test Mode', $this->id),
-            //     'type' => 'checkbox',
-            //     'default' => 'yes',
-            // ),
         );
 
         foreach ($formfields as $key => $value) {
@@ -216,16 +213,27 @@ class WC_PayCertify extends WC_Payment_Gateway {
         return true;
     }
 
-    private function is_empty_expire_date($ccexp_expiry) {
+    // private function is_empty_expire_date($ccexp_expiry) {
 
-        $ccexp_expiry = str_replace(' / ', '', $ccexp_expiry);
+    //     $ccexp_expiry = str_replace(' / ', '', $ccexp_expiry);
 
-        if (is_numeric($ccexp_expiry) && ( strlen($ccexp_expiry) == 4 )) {
-            return true;
-        }
+    //     if (is_numeric($ccexp_expiry) && ( strlen($ccexp_expiry) == 2 )) {
+    //         return true;
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
+
+    // private function is_empty_expire_date($ccexp_expiry) {
+
+    //     $ccexp_expiry = str_replace(' / ', '', $ccexp_expiry);
+
+    //     if (is_numeric($ccexp_expiry) && ( strlen($ccexp_expiry) == 2 )) {
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
 
     private function is_empty_ccv_number($ccv_number) {
 
