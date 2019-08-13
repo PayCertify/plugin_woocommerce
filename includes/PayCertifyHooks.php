@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * WC Function Paycertify Scripts
@@ -28,8 +29,12 @@ function wc_paycertify_checkout_hidden_field() {
     $cart_amount = $woocommerce->cart->total;
     $processor_id = $obj->settings['processor_id'];
 
+    if( $processor_id ){
+        $input_processor = '<input type="hidden" data-paycertify="processor_id" value="'.$processor_id.'"/>';
+    }
+
     echo '<div id="PayCertifyChekout">
-        <input type="hidden" data-paycertify="processor_id" value="'.$processor_id.'"/> 
+         '.$input_processor.'
         <input type="hidden" data-paycertify="amount" value="'.$cart_amount.'"/>
     </div>';
 

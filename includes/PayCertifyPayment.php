@@ -85,7 +85,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
         }
     }
 
-    public function process_payment($order_id) {
+    public function process_payment( $order_id ) {
         $_SESSION["order_id_session"] = $order_id;
     }
 
