@@ -1,18 +1,16 @@
 <?php
-
-
 /**
  *
  * WC Function Paycertify Scripts
  *
  */
-function wc_paycertify_scripts( ) {  
+function wc_paycertify_scripts() {  
     $obj = new WC_PayCertify;
     $api_token = $obj->settings['api_token'];
 
-    if( is_checkout() && !is_order_received_page() ){
+    if( is_checkout() && !is_order_received_page() && !is_admin() ){
         wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key='.$api_token.'', array('jquery'), '2.0', true );
-        wp_enqueue_style('paycertify-css', plugins_url() . '/woo-paycertify/assets/css/paycertify.min.css');
+        wp_enqueue_style('paycertify-css', plugins_url() . '/woo-paycertify-payment-gateway/assets/css/paycertify.min.css');
     }
 }
 add_action( 'wp_enqueue_scripts', 'wc_paycertify_scripts' );
@@ -31,24 +29,48 @@ function wc_paycertify_checkout_hidden_field() {
     $processor_id = $obj->settings['processor_id'];
 
     echo '<div id="PayCertifyChekout">
-            <input type="hidden" data-paycertify="processor_id" value="'.$processor_id.'"/> 
-            <input type="hidden" data-paycertify="amount" value="'.$cart_amount.'"/>
+        <input type="hidden" data-paycertify="processor_id" value="'.$processor_id.'"/> 
+        <input type="hidden" data-paycertify="amount" value="'.$cart_amount.'"/>
     </div>';
 
     if($_SESSION["order_id_session"]){
         $order_id_session = $_SESSION["order_id_session"];
         $order = new WC_Order( $order_id_session );
         if( $_POST['transaction']['events'][0]['success'] == 'true' ){
+
+            // Update status Completed
             $order->update_status( 'completed' );
-            WC()->cart->empty_cart(true);
+
+            // The text for the note
+            $note = __('Payment completed on ' . date("d-M-Y h:i:s e"));
+
+            // Add the note
+            $order->add_order_note( $note );
+
+            // Empty cart
+            WC()->cart->empty_cart( true );
+
+            // Redirect Payment
             wp_redirect( site_url(). '/checkout/order-received/'.$order_id_session.'/?key='.$order->order_key.'' );
+
+            // Session Destroy
             session_destroy();
+
         }else{
+
+            // Update status Failed
             $order->update_status( 'failed' );
+
+            // The text for the note
+            $note = __('Payment failed ' . date("d-M-Y h:i:s e"));
+
+            // Add the note
+            $order->add_order_note( $note );
+
+            // Payment failed
             wc_add_notice("We weren't able to process this card. Please contact your bank for more information.", $notice_type = 'error');
         }
     }
-
 }
 add_action( 'woocommerce_after_order_notes', 'wc_paycertify_checkout_hidden_field', 10, 1 );
 
@@ -109,7 +131,6 @@ function wc_paycertify_credit_card_fields($cc_fields , $payment_id){
         <input id="' . esc_attr( $payment_id ) . '-card-number" class="input-text wc-credit-card-form-card-number" data-paycertify="card-number" type="text" autocomplete="off" placeholder="•••• •••• •••• ••••" name="' . esc_attr( $payment_id ) . '-card-number" />
      </p>',
 
-
      'card-expiry-field' => '<p class="form-row form-row-first">
         <label for="' . esc_attr( $payment_id ) . '-card-expiry">' . __( 'Expiry ( MM )', 'woocommerce' ) . ' <span class="required">*</span></label>
         
@@ -130,7 +151,6 @@ function wc_paycertify_credit_card_fields($cc_fields , $payment_id){
 
      </p>',
 
-
      'card-year-field' => '<p class="form-row form-row-last">
         <label for="' . esc_attr( $payment_id ) . '-card-year">' . __( 'Year ( YY )', 'woocommerce' ) . ' <span class="required">*</span></label>
 
@@ -149,7 +169,6 @@ function wc_paycertify_credit_card_fields($cc_fields , $payment_id){
          </select>
 
      </p>',
-
 
      'card-cvc-field' => '<p class="form-row form-row-last">
         <label for="' . esc_attr( $payment_id ) . '-card-cvc">' . __( 'Card Code', 'woocommerce' ) . ' <span class="required">*</span></label>

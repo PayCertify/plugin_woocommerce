@@ -48,7 +48,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
      */
     public function __construct() {
         
-        //Start session id order
+        // Start session id order
         session_start();
 
         // The global ID for this Payment method
@@ -87,7 +87,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
     public function process_payment($order_id) {
         $_SESSION["order_id_session"] = $order_id;
-        wc_add_notice("Wait for payment confirmation...", $notice_type = 'success');
     }
 
     public function init_form_fields() {
