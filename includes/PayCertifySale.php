@@ -1,10 +1,12 @@
 <?php
 
 
-// ADD SCRIPT PayCertify.js
+/**
+ *
+ * WC Function Paycertify Scripts
+ *
+ */
 function wc_paycertify_scripts( ) {  
-
-    //CLASS WC_PayCertify token admin
     $obj = new WC_PayCertify;
     $api_token = $obj->settings['api_token'];
 
@@ -15,7 +17,11 @@ function wc_paycertify_scripts( ) {
 }
 add_action( 'wp_enqueue_scripts', 'wc_paycertify_scripts' );
 
-
+/**
+ *
+ * WC Function Paycertify Checkout Fields and Transation
+ *
+ */
 function wc_paycertify_checkout_hidden_field() {
 
     global $woocommerce, $post;
@@ -24,7 +30,6 @@ function wc_paycertify_checkout_hidden_field() {
     $cart_amount = $woocommerce->cart->total;
     $processor_id = $obj->settings['processor_id'];
 
-    // Output the hidden link
     echo '<div id="PayCertifyChekout">
             <input type="hidden" data-paycertify="processor_id" value="'.$processor_id.'"/> 
             <input type="hidden" data-paycertify="amount" value="'.$cart_amount.'"/>
@@ -47,7 +52,11 @@ function wc_paycertify_checkout_hidden_field() {
 }
 add_action( 'woocommerce_after_order_notes', 'wc_paycertify_checkout_hidden_field', 10, 1 );
 
-
+/**
+ *
+ * WC Function Paycertify add Field attr
+ *
+ */
 function wc_paycertify_add_field_custom_attr( $fields ) {
 
         $fields['billing']['billing_first_name']['custom_attributes'] = array(
@@ -86,7 +95,11 @@ function wc_paycertify_add_field_custom_attr( $fields ) {
 }
 add_filter( 'woocommerce_checkout_fields', 'wc_paycertify_add_field_custom_attr' );
 
-
+/**
+ *
+ * WC Function Paycertify credit card custom fields
+ *
+ */
 function wc_paycertify_credit_card_fields($cc_fields , $payment_id){
 
     $cc_fields = array(
