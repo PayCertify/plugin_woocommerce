@@ -1,5 +1,8 @@
 <?php
 
+// Start session id order
+session_start();
+
 /**
  *
  * WC Function Paycertify Scripts
@@ -38,7 +41,7 @@ function wc_paycertify_checkout_hidden_field() {
         <input type="hidden" data-paycertify="amount" value="'.$cart_amount.'"/>
     </div>';
 
-    if($_SESSION["order_id_session"]){
+    if( isset( $_SESSION["order_id_session"] )){
         $order_id_session = $_SESSION["order_id_session"];
         $order = new WC_Order( $order_id_session );
         if( $_POST['transaction']['events'][0]['success'] == 'true' ){
@@ -56,24 +59,26 @@ function wc_paycertify_checkout_hidden_field() {
             WC()->cart->empty_cart( true );
 
             // Redirect Payment
-            wp_redirect( site_url(). '/checkout/order-received/'.$order_id_session.'/?key='.$order->order_key.'' );
+            wp_redirect( wc_get_endpoint_url( 'order-received'). '/'.$order_id_session.'/?key='.$order->order_key.'' );
 
             // Session Destroy
             session_destroy();
 
         }else{
 
+            //if( $order->status == 'failed' )
+
             // Update status Failed
             $order->update_status( 'failed' );
 
             // The text for the note
-            $note = __('Payment failed ' . date("d-M-Y h:i:s e"));
+            //$note = __('Payment failed ' . date("d-M-Y h:i:s e"));
 
             // Add the note
-            $order->add_order_note( $note );
+            //$order->add_order_note( $note );
 
             // Payment failed
-            wc_add_notice("We weren't able to process this card. Please contact your bank for more information.", $notice_type = 'error');
+            wc_add_notice("We weren't able to process this card. <strong>". $_POST['transaction']['events'][0]['processor_message'] ."</strong>", $notice_type = 'error');
         }
     }
 }

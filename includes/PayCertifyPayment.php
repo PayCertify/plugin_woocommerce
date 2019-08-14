@@ -47,9 +47,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
      * setup the hooks on calling the constructor
      */
     public function __construct() {
-        
-        // Start session id order
-        session_start();
 
         // The global ID for this Payment method
         $this->id = "paycertify";
@@ -87,6 +84,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
     public function process_payment( $order_id ) {
         $_SESSION["order_id_session"] = $order_id;
+        wc_add_notice("Processing payment ...", $notice_type = 'success');
     }
 
     public function init_form_fields() {
@@ -112,9 +110,9 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'css' => 'max-width:350px;'
             ),
             'api_token' => array(
-                'title' => __('API Token', $this->id),
+                'title' => __('Public Key', $this->id),
                 'type' => 'text',
-                'desc_tip' => __('PayCertify API Token.', $this->id),
+                'desc_tip' => __('PayCertify Public Key.', $this->id),
             ),
             'processor_id' => array(
                 'title' => __('Processor ID', $this->id),
