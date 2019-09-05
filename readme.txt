@@ -4,6 +4,7 @@ Tags: PayCertify Payment Gateway, PayCertify, PayCertify woocommerce plugin, 3ds
 Requires at least: 4.7.5
 Tested up to: 5.2.2
 Stable tag: 2.0.0
+
 License: GPLv2 or later
 
 == Description ==
