@@ -119,20 +119,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'type' => 'text',
                 'desc_tip' => __('The ID of the Processor.', $this->id),
             ),
-            'avs_enabled' => array(
-                'title' => __('Enable AVS', $this->id),
-                'label' => __('Enable AVS', $this->id),
-                'type' => 'checkbox',
-                'desc_tip' => __('Address Verification Service.', $this->id),
-                'default' => 'no',
-            ),
-            'partial_refund' => array(
-                'title' => __('Enable Partial Refunds', $this->id),
-                'label' => __('Enable Partial Refunds', $this->id),
-                'type' => 'checkbox',
-                'desc_tip' => __('Check this box to allow Partial Refunds.', $this->id),
-                'default' => 'no',
-            ),
         );
 
         foreach ($formfields as $key => $value) {
