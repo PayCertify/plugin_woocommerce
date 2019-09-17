@@ -7,11 +7,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
         'title',
         'description',
         'api_token',
-        'avs_enabled',
-        'partial_refund',
-        'dynamic_descriptor',
         'processor_id',
-        'test_mode_enabled',
     );
     public $form_fields = array();
 
@@ -135,7 +131,10 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
         // Generate the HTML For the settings form.
         $this->generate_settings_html();
+
         echo '</table>';
+
+        echo '<p>If you have used the AVS and Partial Refund, please refer to <a href="https://my.paycertify.com" target="_blank">https://my.paycertify.com</a> to manage your order.</p>';
     }
 
     public function get_description() {
@@ -175,14 +174,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
             wc_add_notice('<strong>Credit Card Number</strong> ' . __('is a required field.', 'paycertify'), 'error');
         }
 
-        // if (!$this->is_empty_expire_date($_POST[esc_attr($this->id) . '-card-expiry'])) {
-        //     wc_add_notice('<strong>Card Expiry Date</strong> ' . __('is a required field.', 'paycertify'), 'error');
-        // }
-
-        // if (!$this->is_empty_expire_date($_POST[esc_attr($this->id) . '-card-year'])) {
-        //     wc_add_notice('<strong>Card Year Date</strong> ' . __('is a required field.', 'paycertify'), 'error');
-        // }
-
         if (!$this->is_empty_ccv_number($_POST[esc_attr($this->id) . '-card-cvc'])) {
             wc_add_notice('<strong>CCV Number</strong> ' . __('is a required field.', 'paycertify'), 'error');
         }
@@ -195,28 +186,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
         return true;
     }
-
-    // private function is_empty_expire_date($ccexp_expiry) {
-
-    //     $ccexp_expiry = str_replace(' / ', '', $ccexp_expiry);
-
-    //     if (is_numeric($ccexp_expiry) && ( strlen($ccexp_expiry) == 2 )) {
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
-
-    // private function is_empty_expire_date($ccexp_expiry) {
-
-    //     $ccexp_expiry = str_replace(' / ', '', $ccexp_expiry);
-
-    //     if (is_numeric($ccexp_expiry) && ( strlen($ccexp_expiry) == 2 )) {
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
 
     private function is_empty_ccv_number($ccv_number) {
 
