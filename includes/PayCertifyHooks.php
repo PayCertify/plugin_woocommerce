@@ -33,7 +33,7 @@ function wc_paycertify_checkout_hidden_field() {
     $processor_id = $obj->settings['processor_id'];
 
     if( $processor_id ){
-        $input_processor = '<input type="hidden" data-paycertify="processor_id" value="'.$processor_id.'"/>';
+        $input_processor = '<input type="hidden" data-paycertify="processor-id" value="'.$processor_id.'"/>';
     }
 
     echo '<div id="PayCertifyChekout">
