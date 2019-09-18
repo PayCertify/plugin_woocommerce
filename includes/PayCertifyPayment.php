@@ -2,19 +2,12 @@
 
 class WC_PayCertify extends WC_Payment_Gateway {
 
-    const WC_ORDER_ID = 'woocommerce_order_id';
-    const API_TOKEN = '';
-
     protected $visibleSettings = array(
         'enabled',
         'title',
         'description',
         'api_token',
-        'avs_enabled',
-        'partial_refund',
-        'dynamic_descriptor',
         'processor_id',
-        'test_mode_enabled',
     );
     public $form_fields = array();
 
@@ -42,7 +35,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
      * @return mixed setting value
      */
     public function getSetting($key) {
-        return $this->settings[$key];
+        return $this->method_title;
     }
 
     /**
@@ -76,8 +69,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
         $this->init_settings();
 
-        define("API_TOKEN", $this->get_token());
-
         add_action('admin_notices', array($this, 'do_ssl_check'));
 
         // Save settings
@@ -85,6 +76,11 @@ class WC_PayCertify extends WC_Payment_Gateway {
             // Save our administration options.
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
         }
+    }
+
+    public function process_payment( $order_id ) {
+        $_SESSION["order_id_session"] = $order_id;
+        wc_add_notice("Processing payment ...", $notice_type = 'success');
     }
 
     public function init_form_fields() {
@@ -110,39 +106,14 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'css' => 'max-width:350px;'
             ),
             'api_token' => array(
-                'title' => __('API Token', $this->id),
+                'title' => __('Public Key', $this->id),
                 'type' => 'text',
-                'desc_tip' => __('PayCertify API Token.', $this->id),
+                'desc_tip' => __('PayCertify Public Key.', $this->id),
             ),
             'processor_id' => array(
                 'title' => __('Processor ID', $this->id),
                 'type' => 'text',
                 'desc_tip' => __('The ID of the Processor.', $this->id),
-            ),
-            'avs_enabled' => array(
-                'title' => __('Enable AVS', $this->id),
-                'label' => __('Enable AVS', $this->id),
-                'type' => 'checkbox',
-                'desc_tip' => __('Address Verification Service.', $this->id),
-                'default' => 'no',
-            ),
-            'partial_refund' => array(
-                'title' => __('Enable Partial Refunds', $this->id),
-                'label' => __('Enable Partial Refunds', $this->id),
-                'type' => 'checkbox',
-                'desc_tip' => __('Check this box to allow Partial Refunds.', $this->id),
-                'default' => 'no',
-            ),
-            'dynamic_descriptor' => array(
-                'title' => __('Dynamic Descriptor', $this->id),
-                'type' => 'text',
-                'desc_tip' => __('The credit card statement descriptor.', $this->id),
-            ),
-            'test_mode_enabled' => array(
-                'title' => __('Enable Test Mode', $this->id),
-                'label' => __('Enable Test Mode', $this->id),
-                'type' => 'checkbox',
-                'default' => 'yes',
             ),
         );
 
@@ -153,136 +124,6 @@ class WC_PayCertify extends WC_Payment_Gateway {
         }
     }
 
-    public function process_payment($order_id) {
-		
-        global $woocommerce;
-        $wc_order = new WC_Order($order_id);
-        $exp_date = explode("/", sanitize_text_field($_POST['paycertify-card-expiry']));
-        $exp_month = str_replace(' ', '', $exp_date[0]);
-        $exp_year = str_replace(' ', '', $exp_date[1]);
-
-        if (strlen($exp_year) == 2) {
-            $exp_year += 2000;
-        }
-
-        $payload = array(
-            'amount' => $wc_order->order_total,
-            'card_number' => str_replace(array(' ', '-'), '', sanitize_text_field($_POST['paycertify-card-number'])),
-            'card_expiry_month' => $exp_month,
-            'card_expiry_year' => $exp_year,
-            'card_cvv' => sanitize_text_field($_POST['paycertify-card-cvc']),
-            'merchant_transaction_id' => $order_id,
-            'first_name' => $wc_order->billing_first_name,
-            'last_name' => $wc_order->billing_last_name,
-            'email' => $wc_order->billing_email,
-            'street_address_1' => $wc_order->billing_address_1,
-            'street_address_2' => $wc_order->billing_address_2,
-            'city' => $wc_order->billing_city,
-            'state' => $wc_order->billing_state,
-            'country' => $wc_order->billing_country,
-            'zip' => $wc_order->billing_postcode,
-            'shipping_street_address_1' => $wc_order->shipping_address_1,
-            'shipping_street_address_2' => $wc_order->shipping_address_2,
-            'shipping_city' => $wc_order->shipping_city,
-            'shipping_state' => $wc_order->shipping_state,
-            'shipping_country' => $wc_order->shipping_country,
-            'shipping_zip' => $wc_order->shipping_postcode,
-        );
-
-        if ($this->getSetting('avs_enabled') == 'yes') {
-            $payload['avs_enabled'] = true;
-        }
-
-        if (!empty($this->getSetting('dynamic_descriptor'))) {
-            $payload['dynamic_descriptor'] = $this->getSetting('dynamic_descriptor');
-        }
-
-        if (!empty($this->getSetting('processor_id'))) {
-            $payload['processor_id'] = $this->getSetting('processor_id');
-        }
-
-
-        $sale = new PayCertifyDoSale($this);
-        $sale->setFields($payload);
-        $response = $sale->capturePayment();
-
-        if ($response) {
-            if (isset($response['error'])) {
-                wc_add_notice("Error in PayCertify Integration. Please contact merchant !", $notice_type = 'error');
-            } else {
-
-                $event = $response['event'];
-
-                if ($event->success) {
-
-                    $wc_order->add_order_note('Payment completed on ' . date("d-M-Y h:i:s e"), 'woocommerce');
-                    $wc_order->payment_complete($response['txn_id']);
-                    $woocommerce->cart->empty_cart();
-
-                    return array(
-                        'result' => 'success',
-                        'redirect' => $this->get_return_url($wc_order),
-                    );
-                    // WC()->cart->empty_cart();
-                } else {
-                    wc_add_notice("We weren't able to process this card. Please contact your bank for more information.", $notice_type = 'error');
-                    $wc_order->add_order_note('Payment failed', 'woocommerce');
-                }
-            }
-        }
-    }
-
-    public function process_refund($order_id, $amount = NULL, $reason = '') {
-
-        global $woocommerce;
-
-        $wc_order = new WC_Order($order_id);
-        $txn_id = get_post_meta($order_id, '_transaction_id', true);
-        $payload = array('amount' => $amount);
-        $refund = new PayCertifyDoSale($this);
-        $refund->setFields($payload);
-
-        if ($amount < 0 || $amount == 0) {
-            return new WP_Error('error', __('Refund amount should be greater than 0 !', 'woocommerce'));
-        }
-
-        if ($amount < $wc_order->order_total) {
-			
-            if (!isset($this->settings['partial_refund']) || $this->getSetting('partial_refund') == 'no') {
-                return new WP_Error('error', __('Partial Refund is not allowed. To allow go to Paycertify settings !', 'woocommerce'));
-            }
-        }
-
-        if (!empty($txn_id)) {
-            $response = $refund->doRefund($txn_id);
-
-            if ($response) {
-                if (isset($response['error'])) {
-                    $wc_order->add_order_note('Unable to refund via Paycertify.', 'woocommerce');
-                    return false;
-                } else {
-                    $event = $response['event'];
-
-                    if ($event->success) {
-
-                        if ($wc_order->order_total == $amount) {
-                            $wc_order->update_status('wc-refunded');
-                            $wc_order->add_order_note('Full refund has been made! ', 'woocommerce');
-                        } else {
-                            $wc_order->add_order_note('Partial refund has been made! ', 'woocommerce');
-                        }
-                        return true;
-                    } else {
-                        return new WP_Error('error', __('Refund failed: Please try another amount !', 'woocommerce'));
-                    }
-                }
-            }
-        } else {
-
-            return new WP_Error('error', __('Refund failed: No transaction ID found !', 'woocommerce'));
-        }
-    }
-
     public function admin_options() {
         echo '<h3>' . __('PayCertify Payment Gateway', $this->id) . '</h3>';
         echo '<p>' . __('Allows payments by Credit/Debit Cards.') . '</p>';
@@ -290,7 +131,10 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
         // Generate the HTML For the settings form.
         $this->generate_settings_html();
+
         echo '</table>';
+
+        echo '<p>If you have used the AVS and Partial Refund, please refer to <a href="https://my.paycertify.com" target="_blank">https://my.paycertify.com</a> to manage your order.</p>';
     }
 
     public function get_description() {
@@ -313,6 +157,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
         return $order->id;
     }
 
+    //METHOD SSL CHECK
     public function do_ssl_check() {
         if ($this->enabled == "yes") {
             if (get_option('woocommerce_force_ssl_checkout') == "no") {
@@ -321,15 +166,12 @@ class WC_PayCertify extends WC_Payment_Gateway {
         }
     }
 
+    //VALIDATE FIELDS CARD
     public function validate_fields() {
         global $woocommerce;
 
         if (!$this->is_empty_credit_card($_POST[esc_attr($this->id) . '-card-number'])) {
             wc_add_notice('<strong>Credit Card Number</strong> ' . __('is a required field.', 'paycertify'), 'error');
-        }
-
-        if (!$this->is_empty_expire_date($_POST[esc_attr($this->id) . '-card-expiry'])) {
-            wc_add_notice('<strong>Card Expiry Date</strong> ' . __('is a required field.', 'paycertify'), 'error');
         }
 
         if (!$this->is_empty_ccv_number($_POST[esc_attr($this->id) . '-card-cvc'])) {
@@ -345,24 +187,11 @@ class WC_PayCertify extends WC_Payment_Gateway {
         return true;
     }
 
-    private function is_empty_expire_date($ccexp_expiry) {
-
-        $ccexp_expiry = str_replace(' / ', '', $ccexp_expiry);
-
-        if (is_numeric($ccexp_expiry) && ( strlen($ccexp_expiry) == 4 )) {
-            return true;
-        }
-
-        return false;
-    }
-
     private function is_empty_ccv_number($ccv_number) {
 
         $length = strlen($ccv_number);
 
         return is_numeric($ccv_number) AND $length > 2 AND $length < 5;
     }
-
+   
 }
-
-?>
