@@ -2,7 +2,7 @@
 Contributors: daviwp
 Tags: PayCertify Payment Gateway, PayCertify, PayCertify woocommerce plugin, 3ds, 3d secure, kount, fraud prevention, visa, mastercard, amex
 Requires at least: 4.7.5
-Tested up to: 5.2.2
+Tested up to: 5.2.3
 Stable tag: 2.0.0
 
 License: GPLv2 or later
