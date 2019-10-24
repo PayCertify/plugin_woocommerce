@@ -8,16 +8,46 @@ session_start();
  * WC Function Paycertify Scripts
  *
  */
-function wc_paycertify_scripts() {  
+function wc_paycertify_scripts() {
     $obj = new WC_PayCertify;
     $api_token = $obj->settings['api_token'];
 
     if( is_checkout() && !is_order_received_page() && !is_admin() ){
         wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key='.$api_token.'', array('jquery'), '2.0', true );
-        wp_enqueue_style('paycertify-css', plugins_url() . '/woo-paycertify-payment-gateway/assets/css/paycertify.min.css');
+        // wp_enqueue_style('paycertify-css', plugins_url() . '/woo-paycertify-payment-gateway/assets/css/paycertify.min.css');
     }
 }
 add_action( 'wp_enqueue_scripts', 'wc_paycertify_scripts' );
+
+
+add_action('wp_footer', 'total_price_cypher_update_checkout', 50);
+function total_price_cypher_update_checkout() {
+    if ( ! is_checkout() ) return;
+    ?>
+    <script type="text/javascript">
+    jQuery(function($) {
+        let events = [];
+        $(document).on( 'DOMSubtreeModified', '#order_review', function () {
+            $('.order-total .woocommerce-Price-amount').text();
+            events = events.concat($('.order-total .woocommerce-Price-amount').text().substring(1))
+
+            const value = events[events.length - 1];
+            jQuery('[data-paycertify="amount"]').val(value)
+            if(window.pcjs && window.pcjs.PayButton) {
+                const txid = window.pcjs.PayButton.memoized.merchant_transaction_id;
+                if(txid !== undefined && jQuery('[data-paycertify="amount"]').val() !== '') {
+                    window.pcjs.PayButton.txcypher({merchant_transaction_id: txid, amount: value})
+                        .then((cc) => {
+                            window.pcjs.PayButton.cypher = cc.token;
+                        });
+                }
+            }
+        });
+
+    });
+    </script>
+    <?php
+}
 
 /**
  *
@@ -28,7 +58,7 @@ function wc_paycertify_checkout_hidden_field() {
 
     global $woocommerce, $post;
     $obj = new WC_PayCertify;
-    
+
     $cart_amount = $woocommerce->cart->total;
     $processor_id = $obj->settings['processor_id'];
 
@@ -143,7 +173,7 @@ function wc_paycertify_credit_card_fields($cc_fields , $payment_id){
 
      'card-expiry-field' => '<p class="form-row form-row-first">
         <label for="' . esc_attr( $payment_id ) . '-card-expiry">' . __( 'Expiry ( MM )', 'woocommerce' ) . ' <span class="required">*</span></label>
-        
+
         <select data-paycertify="card-expiry-month" id="' . esc_attr( $payment_id ) . '-card-expiry" name="' . esc_attr( $payment_id ) . '-card-expiry" id="' . esc_attr( $payment_id ) . '-card-number">
             <option>01</option>
             <option>02</option>
