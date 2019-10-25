@@ -1,9 +1,9 @@
 ===  PayCertify WooCommerce Plugin ===
-Contributors: daviwp
+Contributors: PayCertify Engineering Team
 Tags: PayCertify Payment Gateway, PayCertify, PayCertify woocommerce plugin, 3ds, 3d secure, kount, fraud prevention, visa, mastercard, amex
 Requires at least: 4.7.5
 Tested up to: 5.2.3
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 
 License: GPLv2 or later
 
@@ -25,6 +25,9 @@ In order to generate a publishable key, you will need a PayCertify account. Afte
 
 
 == Changelog ==
+
+= 2.0.1 - 2019-10-25 =
+* Fixed a bug on apply discount.
 
 = 2.0.0 - 2019-09-09 =
 * This version has breaking changes, update carefully!
