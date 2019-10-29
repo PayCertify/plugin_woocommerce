@@ -1,7 +1,3 @@
 .payment_method_paycertify select{ width: 100% !important; height: 36px;}
 #payment .payment_methods li img { float: right; border: 0; padding: 0; max-height: 1.618em; }
-.woocommerce-checkout #payment ul.payment_methods li img.paycertify-icon {
-  max-width: 35px;
-  padding-left: 3px;
-  margin: 0;
-}
+.woocommerce-checkout #payment ul.payment_methods li img.paycertify-icon {max-width: 35px;padding-left: 3px;margin: 3px 0;}

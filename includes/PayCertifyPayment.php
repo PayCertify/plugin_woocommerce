@@ -58,7 +58,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
         $this->icon = null;
 
-        // Bool. Can be set to true if you want payment fields to show on the checkout 
+        // Bool. Can be set to true if you want payment fields to show on the checkout
         // if doing a direct integration, which we are doing in this case
         $this->has_fields = true;
 
@@ -106,9 +106,9 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'css' => 'max-width:350px;'
             ),
             'api_token' => array(
-                'title' => __('Public Key', $this->id),
+                'title' => __('Publishable Key', $this->id),
                 'type' => 'text',
-                'desc_tip' => __('PayCertify Public Key.', $this->id),
+                'desc_tip' => __('PayCertify Publishable Key.', $this->id),
             ),
             'processor_id' => array(
                 'title' => __('Processor ID', $this->id),
@@ -193,5 +193,5 @@ class WC_PayCertify extends WC_Payment_Gateway {
 
         return is_numeric($ccv_number) AND $length > 2 AND $length < 5;
     }
-   
+
 }
