@@ -226,12 +226,12 @@ add_filter( 'woocommerce_credit_card_form_fields' , 'wc_paycertify_credit_card_f
 add_filter ('woocommerce_gateway_icon', 'custom_woocommerce_icons');
 
 function custom_woocommerce_icons() {
-    $icon  = '<img class="paycertify-icon" src="' . trailingslashit( plugins_url() . '/plugin_woocommerce/assets/' ) . 'img/visa.svg' . '" alt="Visa" />';
-    $icon .= '<img class="paycertify-icon" src="' . trailingslashit( plugins_url() . '/plugin_woocommerce/assets/' ) . 'img/mastercard.svg' . '" alt="Mastercard" />';
-    $icon .= '<img class="paycertify-icon" src="' . trailingslashit( plugins_url() . '/plugin_woocommerce/assets/' ) . 'img/amex.svg' . '" alt="American Express" />';
-    $icon .= '<img class="paycertify-icon" src="' . trailingslashit( plugins_url() . '/plugin_woocommerce/assets/' ) . 'img/discover.svg' . '" alt="Visa" />';
-    $icon .= '<img class="paycertify-icon" src="' . trailingslashit( plugins_url() . '/plugin_woocommerce/assets/' ) . 'img/jcb.svg' . '" alt="JCB" />';
-    $icon .= '<img class="paycertify-icon" src="' . trailingslashit( plugins_url() . '/plugin_woocommerce/assets/' ) . 'img/diners.svg' . '" alt="Diners Club" />';
+    $icon  = '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/visa.svg' . '" alt="Visa" />';
+    $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/mastercard.svg' . '" alt="Mastercard" />';
+    $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/amex.svg' . '" alt="American Express" />';
+    $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/discover.svg' . '" alt="Visa" />';
+    $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/jcb.svg' . '" alt="JCB" />';
+    $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/diners.svg' . '" alt="Diners Club" />';
 
     return $icon;
 }

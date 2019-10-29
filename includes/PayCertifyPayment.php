@@ -96,7 +96,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'title' => __('Title', $this->id),
                 'type' => 'text',
                 'desc_tip' => __('Payment title the customer will see during the checkout process.', $this->id),
-                'default' => __('PayCertify Gateway', $this->id),
+                'default' => __('Credit Card', $this->id),
             ),
             'description' => array(
                 'title' => __('Description', $this->id),
