@@ -48,10 +48,10 @@ class WC_PayCertify extends WC_Payment_Gateway {
         $this->id = "paycertify";
 
         // The Title shown on the top of the Payment Gateways Page next to all the other Payment Gateways
-        $this->method_title = __("PayCertify Gateway", 'paycertify');
+        // $this->method_title = __("PayCertify Gateway", 'paycertify');
 
-        // The description for this Payment Gateway, shown on the actual Payment options page on the backend
-        $this->method_description = __("Pay securely through PayCertify.", 'paycertify');
+        // // The description for this Payment Gateway, shown on the actual Payment options page on the backend
+        // $this->method_description = __("Pay securely through PayCertify.", 'paycertify');
 
         // The title to be used for the vertical tabs that can be ordered top to bottom
         $this->title = __($this->get_title(), 'paycertify');
@@ -96,7 +96,7 @@ class WC_PayCertify extends WC_Payment_Gateway {
                 'title' => __('Title', $this->id),
                 'type' => 'text',
                 'desc_tip' => __('Payment title the customer will see during the checkout process.', $this->id),
-                'default' => __('Credit Card', $this->id),
+                'default' => __('PayCertify Gateway', $this->id),
             ),
             'description' => array(
                 'title' => __('Description', $this->id),

@@ -11,10 +11,9 @@ session_start();
 function wc_paycertify_scripts() {
     $obj = new WC_PayCertify;
     $api_token = $obj->settings['api_token'];
-
     if( is_checkout() && !is_order_received_page() && !is_admin() ){
         wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key='.$api_token.'', array('jquery'), '2.0', true );
-        wp_enqueue_style('paycertify-css', plugins_url() . '/plugin_woocommerce/assets/css/paycertify.min.css');
+        wp_enqueue_style('paycertify-css', plugin_dir_url( __DIR__ ) . '/assets/css/paycertify.min.css');
     }
 }
 add_action( 'wp_enqueue_scripts', 'wc_paycertify_scripts' );
@@ -226,7 +225,11 @@ add_filter( 'woocommerce_credit_card_form_fields' , 'wc_paycertify_credit_card_f
 add_filter ('woocommerce_gateway_icon', 'custom_woocommerce_icons');
 
 function custom_woocommerce_icons() {
-    $icon  = '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/visa.svg' . '" alt="Visa" />';
+    if ( ! is_checkout() ) return;
+    $obj = new WC_PayCertify;
+    $icon = '<script type="text/javascript">document.querySelector(".payment_method_paycertify label").childNodes[0].textContent ="' . $obj->settings['title'] . '";</script>';
+    $icon .= '<script type="text/javascript">document.querySelector(".payment_box.payment_method_paycertify p").childNodes[0].textContent ="' . $obj->settings['description'] . '";</script>';
+    $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/visa.svg' . '" alt="Visa" />';
     $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/mastercard.svg' . '" alt="Mastercard" />';
     $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/amex.svg' . '" alt="American Express" />';
     $icon .= '<img class="paycertify-icon" src="' . plugin_dir_url( __DIR__ ) . 'assets/img/discover.svg' . '" alt="Visa" />';
