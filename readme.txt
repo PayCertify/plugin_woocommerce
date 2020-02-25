@@ -3,7 +3,7 @@ Contributors: PayCertify Engineering Team
 Tags: PayCertify Payment Gateway, PayCertify, PayCertify woocommerce plugin, 3ds, 3d secure, kount, fraud prevention, visa, mastercard, amex
 Requires at least: 4.7.5
 Tested up to: 5.3.2
-Stable tag: 2.0.4
+Stable tag: 2.1.0
 
 License: GPLv2 or later
 
@@ -26,16 +26,10 @@ In order to generate a publishable key, you will need a PayCertify account. Afte
 
 == Changelog ==
 
-= 2.0.4 - 2019-12-27 =
+= 2.1.0 - 2020-02-25 =
 * Fixed a bug on Order Management Status.
-
-= 2.0.3 - 2019-10-29 =
 * Fixed a bug on Payment Method Title and Desc.
-
-= 2.0.2 - 2019-10-29 =
 * Added cards icons
-
-= 2.0.1 - 2019-10-25 =
 * Fixed a bug on apply discount.
 
 = 2.0.0 - 2019-09-09 =
