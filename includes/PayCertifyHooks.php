@@ -73,10 +73,10 @@ function wc_paycertify_checkout_hidden_field() {
     if( isset( $_SESSION["order_id_session"] )){
         $order_id_session = $_SESSION["order_id_session"];
         $order = new WC_Order( $order_id_session );
-        if( $_POST['transaction']['events'][0]['success'] == 'true' ){
+        if( $_POST['transaction']['events'][0]['success'] == 'true' ) {
 
             // Update status processing
-            $order->update_status( 'processing' );
+            $order->update_status( 'completed' );
 
             // The text for the note
             $note = __('Payment processed on ' . date("d-M-Y h:i:s e"));
