@@ -4,10 +4,10 @@
  * Plugin Name: WooCommerce PayCertify Payment Gateway
  * Plugin URI: https://wordpress.org/plugins/woocommerce-gateway-paycertify
  * Description: Take credit card payments on your WooCommerce store using PayCertify.
- * Version: 2.1.1
- * Stable tag: 2.1.1
+ * Version: 2.4.0
+ * Stable tag: 2.4.0
  * Author: Paycertify Developers Team
- * WC tested up to: 5.3.2
+ * WC tested up to: 5.5.1
  * Text Domain: woocommerce-gateway-paycertify
  * Author URI: https://paycertify.com
  */
