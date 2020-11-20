@@ -1,15 +1,22 @@
 ===  PayCertify WooCommerce Plugin ===
-Contributors: PayCertify Engineering Team
-Tags: PayCertify Payment Gateway, PayCertify, PayCertify woocommerce plugin, 3ds, 3d secure, kount, fraud prevention, visa, mastercard, amex
+Contributors: PayCertify
+Tags: PayCertify, WooCommerce, plugin, Payment Gateway, 3DS, 3D Secure, Kount, fraud prevention, Visa, MasterCard, amex
 Requires at least: 4.7.5
-Tested up to: 5.3.2
-Stable tag: 2.1.1
+Tested up to: 5.5.3
+Requires PHP: 5.6
+Stable tag: 2.5.1
 
 License: GPLv2 or later
 
 == Description ==
 
-Accept Visa, MasterCard, American Express, Discover, JCB, Diners Club and more directly on your store with the PayCertify Payment Gateway for WooCommerce.
+The PayCertify Checkout Payment Gateway allows you to process credit card payments through your WooCommerce store.
+
+PayCertify Checkout comes with features that make the setup a breeze and ensure you have robust fraud prevention tools from the outset.
+
+Your store will be able to process online payments and subscriptions, without being redirected to an externally hosted checkout page. This provides your customers with an intuitive and professional checkout experience. You are also protected with fraud prevention tools that can be used out-of-the-box, once your credentials have been configured.
+
+The automatic installation process simplifies the setup steps, getting you up and running and processing payments in no time.
 
 == Screenshots ==
 
@@ -25,6 +32,16 @@ In order to generate a publishable key, you will need a PayCertify account. Afte
 
 
 == Changelog ==
+
+= 2.5.1 - 2020-11-20 =
+* Security improvements.
+
+= 2.5.0 - 2020-11-05 =
+* Security improvements.
+
+= 2.4.0 - 2020-07-22 =
+* UI improvements.
+* Removed jQuery dependency.
 
 = 2.1.1 - 2020-02-25 =
 * Fixed a bug on Order Management Status.
