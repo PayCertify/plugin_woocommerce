@@ -2,9 +2,9 @@
 Contributors: PayCertify
 Tags: PayCertify, WooCommerce, plugin, Payment Gateway, 3DS, 3D Secure, Kount, fraud prevention, Visa, MasterCard, amex
 Requires at least: 4.7.5
-Tested up to: 5.5.3
+Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 2.5.1
+Stable tag: 2.5.3
 
 License: GPLv2 or later
 
@@ -32,6 +32,12 @@ In order to generate a publishable key, you will need a PayCertify account. Afte
 
 
 == Changelog ==
+
+= 2.5.3 - 2020-11-26 =
+* 3D Secure v.2 support.
+
+= 2.5.2 - 2020-11-20 =
+* Security improvements.
 
 = 2.5.1 - 2020-11-20 =
 * Security improvements.

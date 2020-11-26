@@ -12,7 +12,7 @@ function wc_paycertify_scripts()
     $api_token = sanitize_text_field($obj->settings['api_token']);
 
     if (is_checkout() && !is_order_received_page() && !is_admin()) {
-        wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key=' . $api_token . '', array(), '2.0', true);
+        wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/staging/paycertify.min.js?key=' . $api_token . '', array(), '2.0', true);
         wp_enqueue_style('paycertify-css', plugin_dir_url(__DIR__) . '/assets/css/paycertify.min.css');
     }
 }
@@ -28,50 +28,75 @@ function total_price_cypher_update_checkout()
     $obj = new WC_PayCertify;
     ?>
     <script type="text/javascript">
-        const parentDiv = document.getElementById('PayCertifyCheckout');
+        window.onload = () => {
+            const parentDiv = document.getElementById('PayCertifyCheckout');
 
-        if(!parentDiv)
-            return;
+            if(parentDiv) {
+                const config = {attributes: true, childList: true, subtree: false};
+                let amountInput = parentDiv.querySelector('input[data-paycertify="amount"]');
+                let amountBlock = null;
+                let psLabel = null;
+                let psMethod = null;
 
-        const config = {attributes: true, childList: true, subtree: true};
-        let amountInput = parentDiv.querySelector('input[data-paycertify="amount"]');
-        let events = [];
-        let amountBlock = null;
-        let psLabel = null;
-        let psMethod = null;
+                const callback = function (mutationsList, observer) {
+                    // Use traditional 'for loops' for IE 11
+                    for (let mutation of mutationsList) {
+                        // On Amount change, re-generate cypher
+                        amountBlock = document.querySelector('.order-total .woocommerce-Price-amount');
+                        if(amountInput.value !== amountBlock.textContent.replace(/[^0-9.]+/g, "")) {
+                            amountInput.value = amountBlock.textContent.replace(/[^0-9.]+/g, "");
 
-        const callback = function (mutationsList, observer) {
-            // Use traditional 'for loops' for IE 11
-            for (let mutation of mutationsList) {
-                amountBlock = document.querySelector('.order-total .woocommerce-Price-amount');
-                if(amountInput.value !== amountBlock.textContent.replace(/[^0-9.]+/g, "")) {
-                    amountInput.value = amountBlock.textContent.replace(/[^0-9.]+/g, "");
+                            psLabel = document.querySelector(".payment_method_paycertify label");
+                            if (psLabel && psLabel.childNodes.length) {
+                                psLabel.childNodes[0].textContent = "<?php echo sanitize_text_field($obj->settings['title']) ?>";
+                            }
+                            psMethod = document.querySelector(".payment_box.payment_method_paycertify p");
+                            if (psMethod && psMethod.childNodes.length) {
+                                psMethod.childNodes[0].textContent = "<?php echo sanitize_text_field($obj->settings['description']) ?>";
+                            }
 
-                    psLabel = document.querySelector(".payment_method_paycertify label");
-                    if (psLabel && psLabel.childNodes.length) {
-                        psLabel.childNodes[0].textContent = "<?php echo sanitize_text_field($obj->settings['title']) ?>";
-                    }
-                    psMethod = document.querySelector(".payment_box.payment_method_paycertify p");
-                    if (psMethod && psMethod.childNodes.length) {
-                        psMethod.childNodes[0].textContent = "<?php echo sanitize_text_field($obj->settings['description']) ?>";
-                    }
+                            if (window.pcjs && window.pcjs.PayButton && amountInput.value) {
+                                const txid = window.pcjs.PayButton.memoized.merchant_transaction_id;
 
-                    if (window.pcjs && window.pcjs.PayButton && amountInput.value) {
-                        const txid = window.pcjs.PayButton.memoized.merchant_transaction_id;
-
-                        if (txid) {
-                            window.pcjs.PayButton.txCypher({merchant_transaction_id: txid, amount: amountInput.value})
-                                .then((cc) => {
-                                    window.pcjs.PayButton.cypher = cc.token;
-                                });
+                                if (txid) {
+                                    window.pcjs.PayButton.txCypher({merchant_transaction_id: txid, amount: amountInput.value})
+                                        .then((cc) => {
+                                            window.pcjs.PayButton.cypher = cc.token;
+                                        });
+                                }
+                            }
                         }
                     }
-                }
+                };
+
+                const pcjs_amount_observer = new MutationObserver(callback);
+                pcjs_amount_observer.observe(parentDiv, config);
             }
+
+            jQuery(function($){
+                $('form.woocommerce-checkout').on( 'change', 'select#billing_country', function(){
+
+                    if (window.pcjs && window.pcjs.ThreeDSecure) {
+                        setTimeout(() => {
+                            const stateInput = document.querySelector('#billing_state');
+                            if(stateInput) {
+                                stateInput.dataset.paycertify = 'state';
+                            }
+                            window.pcjs.ThreeDSecure.countryChanged();
+                        });
+                    }
+                });
+            });
+
+            jQuery(function($){
+                $('form.woocommerce-checkout').on( 'change', 'select#billing_state', function(){
+                    if (window.pcjs && window.pcjs.ThreeDSecure) {
+                        window.pcjs.ThreeDSecure.stateChanged();
+                    }
+                });
+            });
         };
 
-        const observer = new MutationObserver(callback);
-        observer.observe(parentDiv, config);
     </script>
     <?php
 }
