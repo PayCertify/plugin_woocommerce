@@ -33,6 +33,9 @@ In order to generate a publishable key, you will need a PayCertify account. Afte
 
 == Changelog ==
 
+= 2.5.4 - 2020-11-26 =
+* Support Hotfix.
+
 = 2.5.3 - 2020-11-26 =
 * 3D Secure v.2 support.
 

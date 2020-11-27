@@ -12,7 +12,7 @@ function wc_paycertify_scripts()
     $api_token = sanitize_text_field($obj->settings['api_token']);
 
     if (is_checkout() && !is_order_received_page() && !is_admin()) {
-        wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/staging/paycertify.min.js?key=' . $api_token . '', array(), '2.0', true);
+        wp_enqueue_script('paycertify-js', 'https://js.paycertify.com/paycertify.min.js?key=' . $api_token . '', array(), '2.0', true);
         wp_enqueue_style('paycertify-css', plugin_dir_url(__DIR__) . '/assets/css/paycertify.min.css');
     }
 }
